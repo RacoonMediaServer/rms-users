@@ -8,6 +8,7 @@ import (
 
 // Database represents all database methods
 type Database interface {
+	Users
 }
 
 type database struct {

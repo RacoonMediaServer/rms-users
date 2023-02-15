@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	rms_users "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-users"
 	"github.com/RacoonMediaServer/rms-packages/pkg/service/servicemgr"
 	"github.com/RacoonMediaServer/rms-users/internal/config"
 	"github.com/RacoonMediaServer/rms-users/internal/db"
+	userService "github.com/RacoonMediaServer/rms-users/internal/service"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/logger"
@@ -50,15 +52,16 @@ func main() {
 
 	_ = servicemgr.NewServiceFactory(service)
 
-	_, err := db.Connect(config.Config().Database)
+	database, err := db.Connect(config.Config().Database)
 	if err != nil {
 		logger.Fatalf("Connect to database failed: %s", err)
 	}
 
 	// регистрируем хендлеры
-	//if err := rms_bot.RegisterRmsBotHandler(service.Server(), bot); err != nil {
-	//	logger.Fatalf("Register service failed: %s", err)
-	//}
+	handler := userService.New(database)
+	if err := rms_users.RegisterRmsUsersHandler(service.Server(), handler); err != nil {
+		logger.Fatalf("Register service failed: %s", err)
+	}
 
 	if err := service.Run(); err != nil {
 		logger.Fatalf("Run service failed: %s", err)
