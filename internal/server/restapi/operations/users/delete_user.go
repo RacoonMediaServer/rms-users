@@ -32,7 +32,7 @@ func NewDeleteUser(ctx *middleware.Context, handler DeleteUserHandler) *DeleteUs
 }
 
 /*
-	DeleteUser swagger:route DELETE /admin/users/{id} users deleteUser
+	DeleteUser swagger:route DELETE /users/{id} users deleteUser
 
 Удалить ключ пользователя
 */

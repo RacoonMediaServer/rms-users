@@ -38,7 +38,7 @@ func NewGetUsers(ctx *middleware.Context, handler GetUsersHandler) *GetUsers {
 }
 
 /*
-	GetUsers swagger:route GET /admin/users users getUsers
+	GetUsers swagger:route GET /users users getUsers
 
 Получить список пользователей и информацию по ним
 */

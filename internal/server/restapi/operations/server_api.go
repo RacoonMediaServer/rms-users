@@ -302,15 +302,15 @@ func (o *ServerAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/admin/users"] = users.NewCreateUser(o.context, o.UsersCreateUserHandler)
+	o.handlers["POST"]["/users"] = users.NewCreateUser(o.context, o.UsersCreateUserHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/admin/users/{id}"] = users.NewDeleteUser(o.context, o.UsersDeleteUserHandler)
+	o.handlers["DELETE"]["/users/{id}"] = users.NewDeleteUser(o.context, o.UsersDeleteUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/admin/users"] = users.NewGetUsers(o.context, o.UsersGetUsersHandler)
+	o.handlers["GET"]["/users"] = users.NewGetUsers(o.context, o.UsersGetUsersHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

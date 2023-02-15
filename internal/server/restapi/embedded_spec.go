@@ -30,8 +30,9 @@ func init() {
     "title": "RMS Users API",
     "version": "1.0.0"
   },
+  "host": "136.244.108.126",
   "paths": {
-    "/admin/users": {
+    "/users": {
       "get": {
         "security": [
           {
@@ -136,7 +137,7 @@ func init() {
         }
       }
     },
-    "/admin/users/{id}": {
+    "/users/{id}": {
       "delete": {
         "security": [
           {
@@ -175,9 +176,6 @@ func init() {
     "principal": {
       "type": "object",
       "properties": {
-        "admin": {
-          "type": "boolean"
-        },
         "token": {
           "type": "string"
         }
@@ -211,8 +209,9 @@ func init() {
     "title": "RMS Users API",
     "version": "1.0.0"
   },
+  "host": "136.244.108.126",
   "paths": {
-    "/admin/users": {
+    "/users": {
       "get": {
         "security": [
           {
@@ -300,7 +299,7 @@ func init() {
         }
       }
     },
-    "/admin/users/{id}": {
+    "/users/{id}": {
       "delete": {
         "security": [
           {
@@ -359,9 +358,6 @@ func init() {
     "principal": {
       "type": "object",
       "properties": {
-        "admin": {
-          "type": "boolean"
-        },
         "token": {
           "type": "string"
         }

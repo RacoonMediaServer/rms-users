@@ -1,8 +1,9 @@
 swagger: '2.0'
 info:
-  version: 1.0.0
+  version: 1.1.0
   title: RMS Users API
   description: Users API for Racoon Media Server Project
+host: 136.244.108.126
 
 consumes:
   - application/json
@@ -20,7 +21,7 @@ tags:
     description: Администрирование пользователей
 
 paths:
-  /admin/users:
+  /users:
     get:
       tags:
         - users
@@ -87,7 +88,7 @@ paths:
       security:
         - key: [ ]
 
-  /admin/users/{id}:
+  /users/{id}:
     delete:
       tags:
         - users

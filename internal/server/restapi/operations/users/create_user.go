@@ -37,7 +37,7 @@ func NewCreateUser(ctx *middleware.Context, handler CreateUserHandler) *CreateUs
 }
 
 /*
-	CreateUser swagger:route POST /admin/users users createUser
+	CreateUser swagger:route POST /users users createUser
 
 Создать новый ключ пользователя
 */

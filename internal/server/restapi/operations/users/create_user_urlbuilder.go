@@ -35,7 +35,7 @@ func (o *CreateUserURL) SetBasePath(bp string) {
 func (o *CreateUserURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/admin/users"
+	var _path = "/users"
 
 	_basePath := o._basePath
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)

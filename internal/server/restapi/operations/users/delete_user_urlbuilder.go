@@ -40,7 +40,7 @@ func (o *DeleteUserURL) SetBasePath(bp string) {
 func (o *DeleteUserURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/admin/users/{id}"
+	var _path = "/users/{id}"
 
 	id := o.ID
 	if id != "" {
