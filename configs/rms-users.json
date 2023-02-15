@@ -5,5 +5,9 @@
     "user": "rms",
     "password": "rms",
     "database": "rms"
+  },
+  "http": {
+    "host": "localhost",
+    "port": 8080
   }
 }

@@ -16,6 +16,12 @@ type Users interface {
 
 	// FindUser finds user by ID (nil means not found)
 	FindUser(ID string) (*model.User, error)
+
+	// GetUsers returns all users records
+	GetUsers() ([]model.User, error)
+
+	// DeleteUser deletes user and returns affected rows
+	DeleteUser(ID string) (bool, error)
 }
 
 func (d database) UsersCount() (uint64, error) {
@@ -40,4 +46,22 @@ func (d database) FindUser(ID string) (*model.User, error) {
 		return nil, err
 	}
 	return &u, nil
+}
+
+func (d database) GetUsers() ([]model.User, error) {
+	result := make([]model.User, 0)
+	if err := d.conn.Find(&result).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (d database) DeleteUser(ID string) (bool, error) {
+	tx := d.conn.Model(&model.User{}).Unscoped().Delete(&model.User{ID: ID})
+	if tx.Error != nil {
+		return false, tx.Error
+	}
+
+	return tx.RowsAffected != 0, nil
 }

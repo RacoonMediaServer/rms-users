@@ -6,10 +6,12 @@ import (
 	"github.com/RacoonMediaServer/rms-packages/pkg/service/servicemgr"
 	"github.com/RacoonMediaServer/rms-users/internal/config"
 	"github.com/RacoonMediaServer/rms-users/internal/db"
+	"github.com/RacoonMediaServer/rms-users/internal/server"
 	userService "github.com/RacoonMediaServer/rms-users/internal/service"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/logger"
+	"sync"
 )
 
 var Version = "v0.0.0"
@@ -56,7 +58,7 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Connect to database failed: %s", err)
 	}
-	// регистрируем хендлеры
+
 	handler := userService.New(database)
 
 	// создаем пользователя-админа по умолчанию
@@ -64,11 +66,24 @@ func main() {
 		logger.Fatalf("Create admin user failed: %s", err)
 	}
 
+	// регистрируем хендлеры
 	if err := rms_users.RegisterRmsUsersHandler(service.Server(), handler); err != nil {
 		logger.Fatalf("Register service failed: %s", err)
 	}
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		srv := server.Server{Users: handler}
+		if err := srv.ListenAndServer(config.Config().Http.Host, config.Config().Http.Port); err != nil {
+			logger.Fatalf("Cannot start web server: %+s", err)
+		}
+	}()
+
 	if err := service.Run(); err != nil {
 		logger.Fatalf("Run service failed: %s", err)
 	}
+
+	wg.Wait()
 }

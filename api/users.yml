@@ -1,0 +1,117 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: RMS Users API
+  description: Users API for Racoon Media Server Project
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  key:
+    type: apiKey
+    in: header
+    name: x-token
+
+tags:
+  - name: users
+    description: Администрирование пользователей
+
+paths:
+  /admin/users:
+    get:
+      tags:
+        - users
+      summary: Получить список пользователей и информацию по ним
+      operationId: getUsers
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            required:
+              - results
+            properties:
+              results:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    info:
+                      type: string
+                    isAdmin:
+                      type: boolean
+                    lastRequestTime:
+                      type: integer
+                    reqPerDay:
+                      type: number
+        '500':
+          description: Ошибка на стороне сервера
+      security:
+        - key: [ ]
+
+    post:
+      tags:
+        - users
+      summary: Создать новый ключ пользователя
+      operationId: createUser
+      parameters:
+        - name: user
+          in: body
+          schema:
+            type: object
+            required:
+              - info
+            properties:
+              info:
+                type: string
+              isAdmin:
+                type: boolean
+                default: false
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: string
+        '500':
+          description: Ошибка на стороне сервера
+      security:
+        - key: [ ]
+
+  /admin/users/{id}:
+    delete:
+      tags:
+        - users
+      summary: Удалить ключ пользователя
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: Ключ пользователя
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Ключ не найден
+        '500':
+          description: Ошибка на стороне сервера
+      security:
+        - key: [ ]
+
+definitions:
+  principal:
+    type: object
+    properties:
+      token:
+        type: string
