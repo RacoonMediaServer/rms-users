@@ -56,9 +56,14 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Connect to database failed: %s", err)
 	}
-
 	// регистрируем хендлеры
 	handler := userService.New(database)
+
+	// создаем пользователя-админа по умолчанию
+	if err = handler.CreateAdminIfNecessary(); err != nil {
+		logger.Fatalf("Create admin user failed: %s", err)
+	}
+
 	if err := rms_users.RegisterRmsUsersHandler(service.Server(), handler); err != nil {
 		logger.Fatalf("Register service failed: %s", err)
 	}

@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/RacoonMediaServer/rms-packages/pkg/configuration"
+	"github.com/RacoonMediaServer/rms-users/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,5 +21,10 @@ func Connect(config configuration.Database) (Database, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if err = db.AutoMigrate(&model.User{}); err != nil {
+		return nil, err
+	}
+
 	return database{conn: db}, nil
 }
