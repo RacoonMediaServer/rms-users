@@ -5,7 +5,7 @@ import uuid "github.com/satori/go.uuid"
 // User represents one device's user
 type User struct {
 	// ID is a device/API key
-	ID string
+	ID string `gorm:"primaryKey"`
 
 	// Info stores short comment about device
 	Info string
