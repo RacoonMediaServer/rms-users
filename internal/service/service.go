@@ -38,7 +38,7 @@ func (s Service) DeleteUser(ID string) error {
 	return nil
 }
 
-func (s Service) CanAccess(ctx context.Context, request *rms_users.CanAccessRequest, response *rms_users.CanAccessResponse) error {
+func (s Service) GetPermissions(ctx context.Context, request *rms_users.GetPermissionsRequest, response *rms_users.GetPermissionsResponse) error {
 	u, err := s.db.FindUser(request.Token)
 	if err != nil {
 		logger.Errorf("attempt to find user failed: %s", err)
@@ -49,13 +49,10 @@ func (s Service) CanAccess(ctx context.Context, request *rms_users.CanAccessRequ
 		return nil
 	}
 
-	switch request.Action {
-	case rms_users.CanAccessRequest_Search:
-		fallthrough
-	case rms_users.CanAccessRequest_ConnectingToTheBot:
-		response.Result = true
-	case rms_users.CanAccessRequest_AccountManagement:
-		response.Result = u.Admin
+	response.Perms = append(response.Perms, rms_users.Permissions_Search)
+	response.Perms = append(response.Perms, rms_users.Permissions_ConnectingToTheBot)
+	if u.Admin {
+		response.Perms = append(response.Perms, rms_users.Permissions_AccountManagement)
 	}
 
 	return nil
