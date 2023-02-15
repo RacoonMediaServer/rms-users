@@ -1,2 +1,5 @@
-# rms-template
-Template repository for microservices
+# rms-users
+
+Microservice for user management on remote part of RacoonMediaServer.
+
+
