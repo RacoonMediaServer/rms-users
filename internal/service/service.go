@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	rms_bot_server "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-bot-server"
 	rms_users "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-users"
+	"github.com/RacoonMediaServer/rms-packages/pkg/service/servicemgr"
 	"github.com/RacoonMediaServer/rms-users/internal/db"
 	"github.com/RacoonMediaServer/rms-users/internal/model"
 	"go-micro.dev/v4/logger"
@@ -14,6 +16,7 @@ var ErrUserNotFound = errors.New("user not found")
 
 type Service struct {
 	db db.Users
+	f  servicemgr.ServiceFactory
 }
 
 func (s Service) GetUsers() ([]model.User, error) {
@@ -35,6 +38,11 @@ func (s Service) DeleteUser(ID string) error {
 	if !ok {
 		return ErrUserNotFound
 	}
+
+	if _, err = s.f.NewBotServer().DropSession(context.Background(), &rms_bot_server.DropSessionRequest{Token: ID}); err != nil {
+		logger.Warnf("Notify bot failed: %s", err)
+	}
+
 	return nil
 }
 
@@ -93,6 +101,9 @@ func (s Service) CreateAdminIfNecessary() error {
 	return nil
 }
 
-func New(database db.Users) Service {
-	return Service{db: database}
+func New(database db.Users, f servicemgr.ServiceFactory) Service {
+	return Service{
+		db: database,
+		f:  f,
+	}
 }

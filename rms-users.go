@@ -52,14 +52,12 @@ func main() {
 		_ = logger.Init(logger.WithLevel(logger.DebugLevel))
 	}
 
-	_ = servicemgr.NewServiceFactory(service)
-
 	database, err := db.Connect(config.Config().Database)
 	if err != nil {
 		logger.Fatalf("Connect to database failed: %s", err)
 	}
 
-	handler := userService.New(database)
+	handler := userService.New(database, servicemgr.NewServiceFactory(service))
 
 	// создаем пользователя-админа по умолчанию
 	if err = handler.CreateAdminIfNecessary(); err != nil {
