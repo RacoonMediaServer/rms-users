@@ -8,9 +8,11 @@ import (
 	"github.com/RacoonMediaServer/rms-users/internal/db"
 	"github.com/RacoonMediaServer/rms-users/internal/server"
 	userService "github.com/RacoonMediaServer/rms-users/internal/service"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/logger"
+	"net/http"
 	"sync"
 )
 
@@ -76,6 +78,13 @@ func main() {
 		srv := server.Server{Users: handler}
 		if err := srv.ListenAndServer(config.Config().Http.Host, config.Config().Http.Port); err != nil {
 			logger.Fatalf("Cannot start web server: %+s", err)
+		}
+	}()
+
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		if err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Config().Monitor.Host, config.Config().Monitor.Port), nil); err != nil {
+			logger.Fatalf("Cannot bind monitoring endpoint: %s", err)
 		}
 	}()
 

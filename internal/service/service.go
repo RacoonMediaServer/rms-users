@@ -53,6 +53,7 @@ func (s Service) GetPermissions(ctx context.Context, request *rms_users.GetPermi
 		return nil
 	}
 	if u == nil {
+		unknownDeviceRequestsCounter.Inc()
 		logger.Warnf("user not found: %s", request.Token)
 		return nil
 	}
@@ -62,6 +63,8 @@ func (s Service) GetPermissions(ctx context.Context, request *rms_users.GetPermi
 	if u.Admin {
 		response.Perms = append(response.Perms, rms_users.Permissions_AccountManagement)
 	}
+
+	deviceRequestsCounter.WithLabelValues(request.Token).Inc()
 
 	return nil
 }

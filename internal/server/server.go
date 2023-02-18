@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/RacoonMediaServer/rms-packages/pkg/middleware"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi/operations"
 	"github.com/RacoonMediaServer/rms-users/internal/service"
@@ -33,6 +34,10 @@ func (s *Server) ListenAndServer(host string, port int) error {
 
 		// создаем и настраиваем сервер
 		s.srv = restapi.NewServer(api)
+
+		// устанавливаем middleware
+		mw := middleware.PanicHandler(middleware.RequestsCountHandler(middleware.UnauthorizedRequestsCountHandler(api.Serve(nil))))
+		s.srv.SetHandler(mw)
 	}
 
 	s.srv.Host = host
