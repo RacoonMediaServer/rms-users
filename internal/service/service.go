@@ -58,8 +58,7 @@ func (s Service) GetPermissions(ctx context.Context, request *rms_users.GetPermi
 		return nil
 	}
 
-	response.Perms = append(response.Perms, rms_users.Permissions_Search)
-	response.Perms = append(response.Perms, rms_users.Permissions_ConnectingToTheBot)
+	response.Perms = []rms_users.Permissions{rms_users.Permissions_Search, rms_users.Permissions_ConnectingToTheBot, rms_users.Permissions_SendNotifications}
 	if u.Admin {
 		response.Perms = append(response.Perms, rms_users.Permissions_AccountManagement)
 	}

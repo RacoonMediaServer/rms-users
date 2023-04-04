@@ -3,7 +3,7 @@ module github.com/RacoonMediaServer/rms-users
 go 1.20
 
 require (
-	github.com/RacoonMediaServer/rms-packages v1.4.2
+	github.com/RacoonMediaServer/rms-packages v1.8.7
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.2
 	github.com/go-openapi/runtime v0.25.0
@@ -12,6 +12,7 @@ require (
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.1
 	github.com/jessevdk/go-flags v1.5.0
+	github.com/prometheus/client_golang v1.14.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/urfave/cli/v2 v2.3.0
 	go-micro.dev/v4 v4.9.0
@@ -67,7 +68,6 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
