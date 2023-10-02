@@ -3,7 +3,7 @@ module github.com/RacoonMediaServer/rms-users
 go 1.20
 
 require (
-	github.com/RacoonMediaServer/rms-packages v1.8.7
+	github.com/RacoonMediaServer/rms-packages v1.10.2
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.2
 	github.com/go-openapi/runtime v0.25.0

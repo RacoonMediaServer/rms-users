@@ -75,65 +75,6 @@ func (o *CreateUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 }
 
-// CreateUserBody create user body
-//
-// swagger:model CreateUserBody
-type CreateUserBody struct {
-
-	// info
-	// Required: true
-	Info *string `json:"info"`
-
-	// is admin
-	IsAdmin *bool `json:"isAdmin,omitempty"`
-}
-
-// Validate validates this create user body
-func (o *CreateUserBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateInfo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *CreateUserBody) validateInfo(formats strfmt.Registry) error {
-
-	if err := validate.Required("user"+"."+"info", "body", o.Info); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this create user body based on context it is used
-func (o *CreateUserBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CreateUserBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CreateUserBody) UnmarshalBinary(b []byte) error {
-	var res CreateUserBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 // CreateUserOKBody create user o k body
 //
 // swagger:model CreateUserOKBody

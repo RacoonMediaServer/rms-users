@@ -83,7 +83,7 @@ type GetUsersOKBody struct {
 
 	// results
 	// Required: true
-	Results []*GetUsersOKBodyResultsItems0 `json:"results"`
+	Results []*models.User `json:"results"`
 }
 
 // Validate validates this get users o k body
@@ -146,6 +146,11 @@ func (o *GetUsersOKBody) contextValidateResults(ctx context.Context, formats str
 	for i := 0; i < len(o.Results); i++ {
 
 		if o.Results[i] != nil {
+
+			if swag.IsZero(o.Results[i]) { // not required
+				return nil
+			}
+
 			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getUsersOK" + "." + "results" + "." + strconv.Itoa(i))
@@ -172,55 +177,6 @@ func (o *GetUsersOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetUsersOKBody) UnmarshalBinary(b []byte) error {
 	var res GetUsersOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-// GetUsersOKBodyResultsItems0 get users o k body results items0
-//
-// swagger:model GetUsersOKBodyResultsItems0
-type GetUsersOKBodyResultsItems0 struct {
-
-	// id
-	ID string `json:"id,omitempty"`
-
-	// info
-	Info string `json:"info,omitempty"`
-
-	// is admin
-	IsAdmin bool `json:"isAdmin,omitempty"`
-
-	// last request time
-	LastRequestTime int64 `json:"lastRequestTime,omitempty"`
-
-	// req per day
-	ReqPerDay float64 `json:"reqPerDay,omitempty"`
-}
-
-// Validate validates this get users o k body results items0
-func (o *GetUsersOKBodyResultsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get users o k body results items0 based on context it is used
-func (o *GetUsersOKBodyResultsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetUsersOKBodyResultsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetUsersOKBodyResultsItems0) UnmarshalBinary(b []byte) error {
-	var res GetUsersOKBodyResultsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

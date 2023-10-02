@@ -38,18 +38,7 @@ paths:
               results:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    info:
-                      type: string
-                    isAdmin:
-                      type: boolean
-                    lastRequestTime:
-                      type: integer
-                    reqPerDay:
-                      type: number
+                  $ref: '#/definitions/user'
         '500':
           description: Ошибка на стороне сервера
       security:
@@ -64,15 +53,7 @@ paths:
         - name: user
           in: body
           schema:
-            type: object
-            required:
-              - info
-            properties:
-              info:
-                type: string
-              isAdmin:
-                type: boolean
-                default: false
+            $ref: '#/definitions/user'
       responses:
         '200':
           description: OK
@@ -111,6 +92,25 @@ paths:
         - key: [ ]
 
 definitions:
+  user:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      info:
+        type: string
+      role:
+        type: string
+        enum:
+          - admin
+          - user
+          - listener
+        default: user
+      telegramUser:
+        type: integer
+
   principal:
     type: object
     properties:

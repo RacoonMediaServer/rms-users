@@ -7,7 +7,7 @@
 //	  http
 //	Host: 136.244.108.126
 //	BasePath: /
-//	Version: 1.0.0
+//	Version: 1.1.0
 //
 //	Consumes:
 //	  - application/json

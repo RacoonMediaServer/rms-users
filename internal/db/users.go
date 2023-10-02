@@ -6,25 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Users is an interface for user management
-type Users interface {
-	// UsersCount returns total users
-	UsersCount() (uint64, error)
-
-	// CreateUser appends user to DB
-	CreateUser(user *model.User) error
-
-	// FindUser finds user by ID (nil means not found)
-	FindUser(ID string) (*model.User, error)
-
-	// GetUsers returns all users records
-	GetUsers() ([]model.User, error)
-
-	// DeleteUser deletes user and returns affected rows
-	DeleteUser(ID string) (bool, error)
-}
-
-func (d database) UsersCount() (uint64, error) {
+func (d Database) UsersCount() (uint64, error) {
 	var count int64
 	result := d.conn.Model(&model.User{}).Count(&count)
 	if result.Error != nil {
@@ -33,11 +15,11 @@ func (d database) UsersCount() (uint64, error) {
 	return uint64(count), nil
 }
 
-func (d database) CreateUser(user *model.User) error {
+func (d Database) CreateUser(user *model.User) error {
 	return d.conn.Create(user).Error
 }
 
-func (d database) FindUser(ID string) (*model.User, error) {
+func (d Database) FindUser(ID string) (*model.User, error) {
 	var u model.User
 	if err := d.conn.First(&u, "id = ?", ID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -48,7 +30,18 @@ func (d database) FindUser(ID string) (*model.User, error) {
 	return &u, nil
 }
 
-func (d database) GetUsers() ([]model.User, error) {
+func (d Database) FindUserByTelegramID(ID int32) (*model.User, error) {
+	var u model.User
+	if err := d.conn.First(&u, "telegram_user_id = ?", ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (d Database) GetUsers() ([]model.User, error) {
 	result := make([]model.User, 0)
 	if err := d.conn.Find(&result).Error; err != nil {
 		return nil, err
@@ -57,11 +50,15 @@ func (d database) GetUsers() ([]model.User, error) {
 	return result, nil
 }
 
-func (d database) DeleteUser(ID string) (bool, error) {
+func (d Database) DeleteUser(ID string) (bool, error) {
 	tx := d.conn.Model(&model.User{}).Unscoped().Delete(&model.User{ID: ID})
 	if tx.Error != nil {
 		return false, tx.Error
 	}
 
 	return tx.RowsAffected != 0, nil
+}
+
+func (d Database) UpdateUser(u *model.User) error {
+	return d.conn.Save(u).Error
 }

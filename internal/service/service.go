@@ -7,16 +7,60 @@ import (
 	rms_bot_server "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-bot-server"
 	rms_users "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-users"
 	"github.com/RacoonMediaServer/rms-packages/pkg/service/servicemgr"
-	"github.com/RacoonMediaServer/rms-users/internal/db"
 	"github.com/RacoonMediaServer/rms-users/internal/model"
 	"go-micro.dev/v4/logger"
+	"math"
 )
 
 var ErrUserNotFound = errors.New("user not found")
 
 type Service struct {
-	db db.Users
+	db Database
 	f  servicemgr.ServiceFactory
+}
+
+func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, response *rms_users.RegisterUserResponse) error {
+	if user.TelegramUserID != nil {
+		u, err := s.db.FindUserByTelegramID(*user.TelegramUserID)
+		if err != nil {
+			return err
+		}
+		if u != nil {
+			for _, perm := range user.Perms {
+				u.Grant(perm)
+			}
+			return s.db.UpdateUser(u)
+		}
+	}
+
+	u := &model.User{
+		Name:           &user.Name,
+		TelegramUserId: user.TelegramUserID,
+	}
+	u.GenerateID()
+	u.SetPermissions(user.Perms)
+	response.Token = u.ID
+	return s.db.CreateUser(u)
+}
+
+func (s Service) GetUserByTelegramId(ctx context.Context, request *rms_users.GetUserByTelegramIdRequest, user *rms_users.User) error {
+	u, err := s.db.FindUserByTelegramID(request.TelegramUserId)
+	if err != nil {
+		return err
+	}
+	if u == nil {
+		return ErrUserNotFound
+	}
+	*user = rms_users.User{
+		Token:          &u.ID,
+		TelegramUserID: u.TelegramUserId,
+		Perms:          u.GetPermissions(),
+	}
+	if u.Name != nil {
+		user.Name = *u.Name
+	}
+
+	return nil
 }
 
 func (s Service) GetUsers() ([]model.User, error) {
@@ -58,11 +102,7 @@ func (s Service) GetPermissions(ctx context.Context, request *rms_users.GetPermi
 		return nil
 	}
 
-	response.Perms = []rms_users.Permissions{rms_users.Permissions_Search, rms_users.Permissions_ConnectingToTheBot, rms_users.Permissions_SendNotifications}
-	if u.Admin {
-		response.Perms = append(response.Perms, rms_users.Permissions_AccountManagement)
-	}
-
+	response.Perms = u.GetPermissions()
 	deviceRequestsCounter.WithLabelValues(request.Token).Inc()
 
 	return nil
@@ -79,7 +119,7 @@ func (s Service) IsAdminUser(ID string) bool {
 		return false
 	}
 
-	return u.Admin
+	return u.IsAllowed(rms_users.Permissions_AccountManagement)
 }
 
 func (s Service) CreateAdminIfNecessary() error {
@@ -92,8 +132,8 @@ func (s Service) CreateAdminIfNecessary() error {
 	}
 
 	u := model.User{
-		Info:  "Default admin user",
-		Admin: true,
+		Info:        "Default admin user",
+		Permissions: math.MaxInt32,
 	}
 	u.GenerateID()
 	if err = s.db.CreateUser(&u); err != nil {
@@ -103,7 +143,7 @@ func (s Service) CreateAdminIfNecessary() error {
 	return nil
 }
 
-func New(database db.Users, f servicemgr.ServiceFactory) Service {
+func New(database Database, f servicemgr.ServiceFactory) Service {
 	return Service{
 		db: database,
 		f:  f,

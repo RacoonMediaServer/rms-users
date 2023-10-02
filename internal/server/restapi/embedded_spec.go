@@ -28,7 +28,7 @@ func init() {
   "info": {
     "description": "Users API for Racoon Media Server Project",
     "title": "RMS Users API",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "host": "136.244.108.126",
   "paths": {
@@ -56,24 +56,7 @@ func init() {
                 "results": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "info": {
-                        "type": "string"
-                      },
-                      "isAdmin": {
-                        "type": "boolean"
-                      },
-                      "lastRequestTime": {
-                        "type": "integer"
-                      },
-                      "reqPerDay": {
-                        "type": "number"
-                      }
-                    }
+                    "$ref": "#/definitions/user"
                   }
                 }
               }
@@ -100,19 +83,7 @@ func init() {
             "name": "user",
             "in": "body",
             "schema": {
-              "type": "object",
-              "required": [
-                "info"
-              ],
-              "properties": {
-                "info": {
-                  "type": "string"
-                },
-                "isAdmin": {
-                  "type": "boolean",
-                  "default": false
-                }
-              }
+              "$ref": "#/definitions/user"
             }
           }
         ],
@@ -178,6 +149,32 @@ func init() {
       "properties": {
         "token": {
           "type": "string"
+        }
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "info": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user",
+          "enum": [
+            "admin",
+            "user",
+            "listener"
+          ]
+        },
+        "telegramUser": {
+          "type": "integer"
         }
       }
     }
@@ -207,7 +204,7 @@ func init() {
   "info": {
     "description": "Users API for Racoon Media Server Project",
     "title": "RMS Users API",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "host": "136.244.108.126",
   "paths": {
@@ -235,7 +232,7 @@ func init() {
                 "results": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/ResultsItems0"
+                    "$ref": "#/definitions/user"
                   }
                 }
               }
@@ -262,19 +259,7 @@ func init() {
             "name": "user",
             "in": "body",
             "schema": {
-              "type": "object",
-              "required": [
-                "info"
-              ],
-              "properties": {
-                "info": {
-                  "type": "string"
-                },
-                "isAdmin": {
-                  "type": "boolean",
-                  "default": false
-                }
-              }
+              "$ref": "#/definitions/user"
             }
           }
         ],
@@ -335,7 +320,15 @@ func init() {
     }
   },
   "definitions": {
-    "ResultsItems0": {
+    "principal": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "user": {
       "type": "object",
       "properties": {
         "id": {
@@ -344,22 +337,20 @@ func init() {
         "info": {
           "type": "string"
         },
-        "isAdmin": {
-          "type": "boolean"
-        },
-        "lastRequestTime": {
-          "type": "integer"
-        },
-        "reqPerDay": {
-          "type": "number"
-        }
-      }
-    },
-    "principal": {
-      "type": "object",
-      "properties": {
-        "token": {
+        "name": {
           "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user",
+          "enum": [
+            "admin",
+            "user",
+            "listener"
+          ]
+        },
+        "telegramUser": {
+          "type": "integer"
         }
       }
     }
