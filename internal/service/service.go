@@ -9,6 +9,7 @@ import (
 	"github.com/RacoonMediaServer/rms-packages/pkg/service/servicemgr"
 	"github.com/RacoonMediaServer/rms-users/internal/model"
 	"go-micro.dev/v4/logger"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"math"
 )
 
@@ -49,7 +50,7 @@ func (s Service) GetUserByTelegramId(ctx context.Context, request *rms_users.Get
 		return err
 	}
 	if u == nil {
-		return ErrUserNotFound
+		return nil
 	}
 	*user = rms_users.User{
 		Token:          &u.ID,
@@ -140,6 +141,24 @@ func (s Service) CreateAdminIfNecessary() error {
 		return fmt.Errorf("store new admin user failed: %w", err)
 	}
 	logger.Infof("Default admin key generated: %s", u.ID)
+	return nil
+}
+
+func (s Service) GetAdminUsers(ctx context.Context, empty *emptypb.Empty, response *rms_users.GetAdminUsersResponse) error {
+	users, err := s.db.GetUsers()
+	if err != nil {
+		return err
+	}
+	for _, u := range users {
+		if u.IsAllowed(rms_users.Permissions_AccountManagement) {
+			result := &rms_users.User{
+				Token:          &u.ID,
+				TelegramUserID: u.TelegramUserId,
+				Perms:          u.GetPermissions(),
+			}
+			response.Users = append(response.Users, result)
+		}
+	}
 	return nil
 }
 
