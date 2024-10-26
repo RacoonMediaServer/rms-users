@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
+
 	rms_bot_server "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-bot-server"
 	rms_users "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-users"
 	"github.com/RacoonMediaServer/rms-packages/pkg/service/servicemgr"
+	"github.com/RacoonMediaServer/rms-users/internal/config"
 	"github.com/RacoonMediaServer/rms-users/internal/model"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"go-micro.dev/v4/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"math"
 )
 
 var ErrUserNotFound = errors.New("user not found")
@@ -20,6 +23,42 @@ type Service struct {
 	f  servicemgr.ServiceFactory
 }
 
+// CheckPermissions implements rms_users.RmsUsersHandler.
+func (s Service) CheckPermissions(ctx context.Context, req *rms_users.CheckPermissionsRequest, resp *rms_users.CheckPermissionsResponse) error {
+	resp.Allowed = false
+
+	claims := authClaims{}
+	_, err := jwt.ParseWithClaims(req.Token, &claims, func(t *jwt.Token) (interface{}, error) {
+		return []byte(config.Config().Security.Key), nil
+	})
+	if err != nil {
+		unknownDeviceRequestsCounter.Inc()
+		logger.Errorf("Auth failed [token='%s']: %s", req.Token, err)
+		return nil
+	}
+
+	u, err := s.db.FindUser(claims.UserID)
+	if err != nil {
+		logger.Errorf("Attempt to find user failed: %s", err)
+		return nil
+	}
+	if u == nil {
+		unknownDeviceRequestsCounter.Inc()
+		logger.Warnf("User not found: %s", claims.UserID)
+		return nil
+	}
+	resp.UserId = claims.UserID
+
+	for _, perm := range req.Perms {
+		if !u.IsAllowed(perm) {
+			return nil
+		}
+	}
+	resp.Allowed = true
+	deviceRequestsCounter.WithLabelValues(u.ID).Inc()
+	return nil
+}
+
 func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, response *rms_users.RegisterUserResponse) error {
 	if user.TelegramUserID != nil {
 		u, err := s.db.FindUserByTelegramID(*user.TelegramUserID)
@@ -27,6 +66,13 @@ func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, respons
 			return err
 		}
 		if u != nil {
+			token, err := s.GenerateAccessToken(u.ID)
+			if err != nil {
+				logger.Errorf("Generate access token failed: %s", err)
+				return errors.New("error during add user")
+			}
+			response.Token = token
+			response.UserId = u.ID
 			for _, perm := range user.Perms {
 				u.Grant(perm)
 			}
@@ -40,7 +86,15 @@ func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, respons
 	}
 	u.GenerateID()
 	u.SetPermissions(user.Perms)
-	response.Token = u.ID
+
+	accessToken, err := s.GenerateAccessToken(u.ID)
+	if err != nil {
+		logger.Errorf("Sign jwt token failed: %s", err)
+		return errors.New("error during adding user")
+	}
+
+	response.Token = accessToken
+	response.UserId = u.ID
 	return s.db.CreateUser(u)
 }
 
@@ -53,7 +107,7 @@ func (s Service) GetUserByTelegramId(ctx context.Context, request *rms_users.Get
 		return nil
 	}
 	*user = rms_users.User{
-		Token:          &u.ID,
+		Id:             &u.ID,
 		TelegramUserID: u.TelegramUserId,
 		Perms:          u.GetPermissions(),
 	}
@@ -68,11 +122,18 @@ func (s Service) GetUsers() ([]model.User, error) {
 	return s.db.GetUsers()
 }
 
-func (s Service) CreateUser(user *model.User) error {
+func (s Service) CreateUser(user *model.User) (string, error) {
 	if user.ID == "" {
 		user.GenerateID()
 	}
-	return s.db.CreateUser(user)
+	token, err := s.GenerateAccessToken(user.ID)
+	if err != nil {
+		return "", err
+	}
+	if err = s.db.CreateUser(user); err != nil {
+		return "", err
+	}
+	return token, err
 }
 
 func (s Service) DeleteUser(ID string) error {
@@ -91,36 +152,13 @@ func (s Service) DeleteUser(ID string) error {
 	return nil
 }
 
-func (s Service) GetPermissions(ctx context.Context, request *rms_users.GetPermissionsRequest, response *rms_users.GetPermissionsResponse) error {
-	u, err := s.db.FindUser(request.Token)
+func (s Service) IsAdminUser(token string) bool {
+	resp := rms_users.CheckPermissionsResponse{}
+	err := s.CheckPermissions(context.Background(), &rms_users.CheckPermissionsRequest{Token: token, Perms: []rms_users.Permissions{rms_users.Permissions_AccountManagement}}, &resp)
 	if err != nil {
-		logger.Errorf("attempt to find user failed: %s", err)
-		return nil
-	}
-	if u == nil {
-		unknownDeviceRequestsCounter.Inc()
-		logger.Warnf("user not found: %s", request.Token)
-		return nil
-	}
-
-	response.Perms = u.GetPermissions()
-	deviceRequestsCounter.WithLabelValues(request.Token).Inc()
-
-	return nil
-}
-
-func (s Service) IsAdminUser(ID string) bool {
-	u, err := s.db.FindUser(ID)
-	if err != nil {
-		logger.Errorf("attempt to find user failed: %s", err)
 		return false
 	}
-	if u == nil {
-		logger.Warnf("user not found: %s", ID)
-		return false
-	}
-
-	return u.IsAllowed(rms_users.Permissions_AccountManagement)
+	return resp.Allowed
 }
 
 func (s Service) CreateAdminIfNecessary() error {
@@ -140,7 +178,12 @@ func (s Service) CreateAdminIfNecessary() error {
 	if err = s.db.CreateUser(&u); err != nil {
 		return fmt.Errorf("store new admin user failed: %w", err)
 	}
-	logger.Infof("Default admin key generated: %s", u.ID)
+	token, err := s.GenerateAccessToken(u.ID)
+	if err != nil {
+		logger.Errorf("Generate access token for admin failed: %s", err)
+		return err
+	}
+	logger.Infof("Default admin key generated: %s", token)
 	return nil
 }
 
@@ -152,7 +195,7 @@ func (s Service) GetAdminUsers(ctx context.Context, empty *emptypb.Empty, respon
 	for _, u := range users {
 		if u.IsAllowed(rms_users.Permissions_AccountManagement) {
 			result := &rms_users.User{
-				Token:          &u.ID,
+				Id:             &u.ID,
 				TelegramUserID: u.TelegramUserId,
 				Perms:          u.GetPermissions(),
 			}

@@ -2,6 +2,8 @@ package server
 
 import (
 	"errors"
+	"math"
+
 	rms_users "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-users"
 	"github.com/RacoonMediaServer/rms-users/internal/model"
 	"github.com/RacoonMediaServer/rms-users/internal/server/models"
@@ -9,7 +11,6 @@ import (
 	"github.com/RacoonMediaServer/rms-users/internal/service"
 	"github.com/go-openapi/runtime/middleware"
 	"go-micro.dev/v4/logger"
-	"math"
 )
 
 func (s *Server) getUsers(params users.GetUsersParams, key *models.Principal) middleware.Responder {
@@ -65,13 +66,13 @@ func (s *Server) createUser(params users.CreateUserParams, key *models.Principal
 		u.Grant(rms_users.Permissions_ListeningMusic)
 	}
 
-	err := s.Users.CreateUser(&u)
+	token, err := s.Users.CreateUser(&u)
 	if err != nil {
 		logger.Errorf("Create user failed: %s", err)
 		return users.NewCreateUserInternalServerError()
 	}
 
-	return users.NewCreateUserOK().WithPayload(&users.CreateUserOKBody{ID: &u.ID})
+	return users.NewCreateUserOK().WithPayload(&users.CreateUserOKBody{ID: &u.ID, Token: &token})
 }
 
 func (s *Server) deleteUser(params users.DeleteUserParams, key *models.Principal) middleware.Responder {

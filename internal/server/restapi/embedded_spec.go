@@ -93,10 +93,14 @@ func init() {
             "schema": {
               "type": "object",
               "required": [
-                "id"
+                "id",
+                "token"
               ],
               "properties": {
                 "id": {
+                  "type": "string"
+                },
+                "token": {
                   "type": "string"
                 }
               }
@@ -269,10 +273,14 @@ func init() {
             "schema": {
               "type": "object",
               "required": [
-                "id"
+                "id",
+                "token"
               ],
               "properties": {
                 "id": {
+                  "type": "string"
+                },
+                "token": {
                   "type": "string"
                 }
               }

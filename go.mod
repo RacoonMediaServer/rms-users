@@ -3,7 +3,7 @@ module github.com/RacoonMediaServer/rms-users
 go 1.20
 
 require (
-	github.com/RacoonMediaServer/rms-packages v1.10.3
+	github.com/RacoonMediaServer/rms-packages v1.14.2
 	github.com/go-micro/plugins/v4/registry/etcd v1.2.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/loads v0.21.2
@@ -50,6 +50,7 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.0.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect

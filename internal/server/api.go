@@ -1,12 +1,13 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/RacoonMediaServer/rms-users/internal/server/models"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi/operations"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi/operations/users"
 	"github.com/go-openapi/errors"
 	"go-micro.dev/v4/logger"
-	"net/http"
 )
 
 func (s *Server) configureAPI(api *operations.ServerAPI) {

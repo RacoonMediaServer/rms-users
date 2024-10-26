@@ -61,8 +61,11 @@ paths:
             type: object
             required:
               - id
+              - token
             properties:
               id:
+                type: string
+              token:
                 type: string
         '500':
           description: Ошибка на стороне сервера

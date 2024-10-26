@@ -83,6 +83,10 @@ type CreateUserOKBody struct {
 	// id
 	// Required: true
 	ID *string `json:"id"`
+
+	// token
+	// Required: true
+	Token *string `json:"token"`
 }
 
 // Validate validates this create user o k body
@@ -90,6 +94,10 @@ func (o *CreateUserOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateToken(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -102,6 +110,15 @@ func (o *CreateUserOKBody) Validate(formats strfmt.Registry) error {
 func (o *CreateUserOKBody) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("createUserOK"+"."+"id", "body", o.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CreateUserOKBody) validateToken(formats strfmt.Registry) error {
+
+	if err := validate.Required("createUserOK"+"."+"token", "body", o.Token); err != nil {
 		return err
 	}
 
