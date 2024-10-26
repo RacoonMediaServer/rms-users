@@ -19,8 +19,9 @@ import (
 var ErrUserNotFound = errors.New("user not found")
 
 type Service struct {
-	db Database
-	f  servicemgr.ServiceFactory
+	db  Database
+	cfg config.Security
+	f   servicemgr.ServiceFactory
 }
 
 // CheckPermissions implements rms_users.RmsUsersHandler.
@@ -29,7 +30,7 @@ func (s Service) CheckPermissions(ctx context.Context, req *rms_users.CheckPermi
 
 	claims := authClaims{}
 	_, err := jwt.ParseWithClaims(req.Token, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(config.Config().Security.Key), nil
+		return []byte(s.cfg.Key), nil
 	})
 	if err != nil {
 		unknownDeviceRequestsCounter.Inc()
@@ -212,9 +213,10 @@ func (s Service) GetAdminUsers(ctx context.Context, empty *emptypb.Empty, respon
 	return nil
 }
 
-func New(database Database, f servicemgr.ServiceFactory) Service {
+func New(database Database, f servicemgr.ServiceFactory, cfg config.Security) Service {
 	return Service{
-		db: database,
-		f:  f,
+		db:  database,
+		f:   f,
+		cfg: cfg,
 	}
 }

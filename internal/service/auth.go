@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/RacoonMediaServer/rms-users/internal/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -17,5 +16,5 @@ func (a authClaims) Valid() error {
 func (s Service) GenerateAccessToken(userId string) (string, error) {
 	claims := authClaims{UserID: userId}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &claims)
-	return token.SignedString([]byte(config.Config().Security.Key))
+	return token.SignedString([]byte(s.cfg.Key))
 }

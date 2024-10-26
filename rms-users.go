@@ -63,7 +63,7 @@ func main() {
 		logger.Fatalf("Connect to database failed: %s", err)
 	}
 
-	handler := userService.New(database, servicemgr.NewServiceFactory(service))
+	handler := userService.New(database, servicemgr.NewServiceFactory(service), config.Config().Security)
 
 	// создаем пользователя-админа по умолчанию
 	if err = handler.CreateAdminIfNecessary(); err != nil {
