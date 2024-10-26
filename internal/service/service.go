@@ -74,6 +74,9 @@ func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, respons
 			response.Token = token
 			response.UserId = u.ID
 			for _, perm := range user.Perms {
+				if perm == rms_users.Permissions_AccountManagement {
+					return errors.New("register admin users is prohibited")
+				}
 				u.Grant(perm)
 			}
 			return s.db.UpdateUser(u)
@@ -86,6 +89,10 @@ func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, respons
 	}
 	u.GenerateID()
 	u.SetPermissions(user.Perms)
+
+	if u.IsAllowed(rms_users.Permissions_AccountManagement) {
+		return errors.New("register admin users is prohibited")
+	}
 
 	accessToken, err := s.GenerateAccessToken(u.ID)
 	if err != nil {
