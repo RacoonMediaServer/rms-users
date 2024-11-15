@@ -20,6 +20,9 @@ import (
 // swagger:model user
 type User struct {
 
+	// domain
+	Domain string `json:"domain,omitempty"`
+
 	// id
 	ID string `json:"id,omitempty"`
 
@@ -30,7 +33,7 @@ type User struct {
 	Name string `json:"name,omitempty"`
 
 	// role
-	// Enum: [admin user listener]
+	// Enum: ["admin","user","listener"]
 	Role *string `json:"role,omitempty"`
 
 	// telegram user

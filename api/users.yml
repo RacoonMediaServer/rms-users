@@ -113,6 +113,8 @@ definitions:
         default: user
       telegramUser:
         type: integer
+      domain:
+        type: string
 
   principal:
     type: object

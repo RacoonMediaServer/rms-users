@@ -159,6 +159,9 @@ func init() {
     "user": {
       "type": "object",
       "properties": {
+        "domain": {
+          "type": "string"
+        },
         "id": {
           "type": "string"
         },
@@ -339,6 +342,9 @@ func init() {
     "user": {
       "type": "object",
       "properties": {
+        "domain": {
+          "type": "string"
+        },
         "id": {
           "type": "string"
         },

@@ -21,6 +21,9 @@ type User struct {
 
 	// Permissions
 	Permissions int32
+
+	// Domain
+	Domain string
 }
 
 // GenerateID automation generation of user ID

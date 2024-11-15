@@ -23,8 +23,9 @@ func (s *Server) getUsers(params users.GetUsersParams, key *models.Principal) mi
 	payload := users.GetUsersOKBody{}
 	for _, user := range registeredUsers {
 		u := &models.User{
-			ID:   user.ID,
-			Info: user.Info,
+			ID:     user.ID,
+			Info:   user.Info,
+			Domain: user.Domain,
 		}
 		if user.TelegramUserId != nil {
 			u.TelegramUser = int64(*user.TelegramUserId)
@@ -47,8 +48,9 @@ func (s *Server) getUsers(params users.GetUsersParams, key *models.Principal) mi
 
 func (s *Server) createUser(params users.CreateUserParams, key *models.Principal) middleware.Responder {
 	u := model.User{
-		Name: &params.User.Name,
-		Info: params.User.Info,
+		Name:   &params.User.Name,
+		Info:   params.User.Info,
+		Domain: params.User.Domain,
 	}
 
 	switch *params.User.Role {

@@ -55,38 +55,50 @@ func (s Service) CheckPermissions(ctx context.Context, req *rms_users.CheckPermi
 			return nil
 		}
 	}
+
+	if req.Domain != nil {
+		if *req.Domain != u.Domain {
+			logger.Warnf("Domain mismatch: %s != %s", *req.Domain, u.Domain)
+			return nil
+		}
+	}
+
 	resp.Allowed = true
 	deviceRequestsCounter.WithLabelValues(u.ID).Inc()
 	return nil
 }
 
 func (s Service) RegisterUser(ctx context.Context, user *rms_users.User, response *rms_users.RegisterUserResponse) error {
-	if user.TelegramUserID != nil {
-		u, err := s.db.FindUserByTelegramID(*user.TelegramUserID)
-		if err != nil {
-			return err
-		}
-		if u != nil {
-			token, err := s.GenerateAccessToken(u.ID)
-			if err != nil {
-				logger.Errorf("Generate access token failed: %s", err)
-				return errors.New("error during add user")
-			}
-			response.Token = token
-			response.UserId = u.ID
-			for _, perm := range user.Perms {
-				if perm == rms_users.Permissions_AccountManagement {
-					return errors.New("register admin users is prohibited")
-				}
-				u.Grant(perm)
-			}
-			return s.db.UpdateUser(u)
-		}
-	}
+	// Код для регистрации пользователей через бота (сейчас не используется)
+	// if user.TelegramUserID != nil {
+	// 	u, err := s.db.FindUserByTelegramID(*user.TelegramUserID)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	if u != nil {
+	// 		token, err := s.GenerateAccessToken(u.ID)
+	// 		if err != nil {
+	// 			logger.Errorf("Generate access token failed: %s", err)
+	// 			return errors.New("error during add user")
+	// 		}
+	// 		response.Token = token
+	// 		response.UserId = u.ID
+	// 		for _, perm := range user.Perms {
+	// 			if perm == rms_users.Permissions_AccountManagement {
+	// 				return errors.New("register admin users is prohibited")
+	// 			}
+	// 			u.Grant(perm)
+	// 		}
+	// 		return s.db.UpdateUser(u)
+	// 	}
+	// }
 
 	u := &model.User{
 		Name:           &user.Name,
 		TelegramUserId: user.TelegramUserID,
+	}
+	if user.Domain != nil {
+		u.Domain = *user.Domain
 	}
 	u.GenerateID()
 	u.SetPermissions(user.Perms)
