@@ -3,7 +3,13 @@ package config
 import "github.com/RacoonMediaServer/rms-packages/pkg/configuration"
 
 type Security struct {
-	Key string
+	Key          string
+	Registration Registration
+}
+
+type Registration struct {
+	Enabled bool
+	Domains []string
 }
 
 // Configuration represents entire service configuration

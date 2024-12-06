@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/RacoonMediaServer/rms-users/internal/server/models"
+	"github.com/RacoonMediaServer/rms-users/internal/server/restapi/operations/registration"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi/operations/users"
 )
 
@@ -53,6 +54,9 @@ func NewServerAPI(spec *loads.Document) *ServerAPI {
 		}),
 		UsersGetUsersHandler: users.GetUsersHandlerFunc(func(params users.GetUsersParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation users.GetUsers has not yet been implemented")
+		}),
+		RegistrationSignUpHandler: registration.SignUpHandlerFunc(func(params registration.SignUpParams) middleware.Responder {
+			return middleware.NotImplemented("operation registration.SignUp has not yet been implemented")
 		}),
 
 		// Applies when the "x-token" header is set
@@ -110,6 +114,8 @@ type ServerAPI struct {
 	UsersDeleteUserHandler users.DeleteUserHandler
 	// UsersGetUsersHandler sets the operation handler for the get users operation
 	UsersGetUsersHandler users.GetUsersHandler
+	// RegistrationSignUpHandler sets the operation handler for the sign up operation
+	RegistrationSignUpHandler registration.SignUpHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -199,6 +205,9 @@ func (o *ServerAPI) Validate() error {
 	}
 	if o.UsersGetUsersHandler == nil {
 		unregistered = append(unregistered, "users.GetUsersHandler")
+	}
+	if o.RegistrationSignUpHandler == nil {
+		unregistered = append(unregistered, "registration.SignUpHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -311,6 +320,10 @@ func (o *ServerAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users"] = users.NewGetUsers(o.context, o.UsersGetUsersHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/signup"] = registration.NewSignUp(o.context, o.RegistrationSignUpHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

@@ -19,8 +19,39 @@ securityDefinitions:
 tags:
   - name: users
     description: Администрирование пользователей
+  - name: registration
+    description: Саморегистрация новых пользователей
 
 paths:
+  /signup:
+    get:
+      tags: 
+        - registration
+      summary: Саморегистрация
+      operationId: signUp
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          description: Домен
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            required:
+              - token
+            properties:
+              token:
+                type: string
+        '403':
+          description: Access Denied
+        '500':
+          description: Ошибка на стороне сервера
+          
   /users:
     get:
       tags:

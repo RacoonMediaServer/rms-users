@@ -2,7 +2,9 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/RacoonMediaServer/rms-packages/pkg/middleware"
+	"github.com/RacoonMediaServer/rms-users/internal/config"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi"
 	"github.com/RacoonMediaServer/rms-users/internal/server/restapi/operations"
 	"github.com/RacoonMediaServer/rms-users/internal/service"
@@ -13,7 +15,8 @@ import (
 type Server struct {
 	srv *restapi.Server
 
-	Users service.Service
+	Users        service.Service
+	Registration config.Registration
 }
 
 func (s *Server) ListenAndServer(host string, port int) error {

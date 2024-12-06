@@ -32,6 +32,48 @@ func init() {
   },
   "host": "136.244.108.126",
   "paths": {
+    "/signup": {
+      "get": {
+        "tags": [
+          "registration"
+        ],
+        "summary": "Саморегистрация",
+        "operationId": "signUp",
+        "parameters": [
+          {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "Домен",
+            "name": "domain",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "required": [
+                "token"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied"
+          },
+          "500": {
+            "description": "Ошибка на стороне сервера"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "security": [
@@ -197,6 +239,10 @@ func init() {
     {
       "description": "Администрирование пользователей",
       "name": "users"
+    },
+    {
+      "description": "Саморегистрация новых пользователей",
+      "name": "registration"
     }
   ]
 }`))
@@ -215,6 +261,48 @@ func init() {
   },
   "host": "136.244.108.126",
   "paths": {
+    "/signup": {
+      "get": {
+        "tags": [
+          "registration"
+        ],
+        "summary": "Саморегистрация",
+        "operationId": "signUp",
+        "parameters": [
+          {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "Домен",
+            "name": "domain",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "required": [
+                "token"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied"
+          },
+          "500": {
+            "description": "Ошибка на стороне сервера"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "security": [
@@ -380,6 +468,10 @@ func init() {
     {
       "description": "Администрирование пользователей",
       "name": "users"
+    },
+    {
+      "description": "Саморегистрация новых пользователей",
+      "name": "registration"
     }
   ]
 }`))

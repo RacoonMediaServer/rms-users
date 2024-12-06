@@ -58,12 +58,13 @@ func main() {
 		_ = logger.Init(logger.WithLevel(logger.DebugLevel))
 	}
 
-	database, err := db.Connect(config.Config().Database)
+	cfg := config.Config()
+	database, err := db.Connect(cfg.Database)
 	if err != nil {
 		logger.Fatalf("Connect to database failed: %s", err)
 	}
 
-	handler := userService.New(database, servicemgr.NewServiceFactory(service), config.Config().Security)
+	handler := userService.New(database, servicemgr.NewServiceFactory(service), cfg.Security)
 
 	// создаем пользователя-админа по умолчанию
 	if err = handler.CreateAdminIfNecessary(); err != nil {
@@ -79,15 +80,15 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		srv := server.Server{Users: handler}
-		if err := srv.ListenAndServer(config.Config().Http.Host, config.Config().Http.Port); err != nil {
+		srv := server.Server{Users: handler, Registration: cfg.Security.Registration}
+		if err := srv.ListenAndServer(cfg.Http.Host, cfg.Http.Port); err != nil {
 			logger.Fatalf("Cannot start web server: %+s", err)
 		}
 	}()
 
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
-		if err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Config().Monitor.Host, config.Config().Monitor.Port), nil); err != nil {
+		if err := http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Monitor.Host, cfg.Monitor.Port), nil); err != nil {
 			logger.Fatalf("Cannot bind monitoring endpoint: %s", err)
 		}
 	}()
