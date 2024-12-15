@@ -18,7 +18,9 @@
     "privateKey": "",
     "registration": {
       "enabled": false,
-      "domains": []
+      "domains": [
+        "public"
+      ]
     }
   }
 }
